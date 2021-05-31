@@ -2,3 +2,8 @@
 Multithreaded helicopter simulator with CPU-only rendering (raycasting) using terrain from the 1992's game Comache.
 
 This project was heavily inspired by https://github.com/s-macke/VoxelSpace. Read that page if you want to learn something about the ingenious simple rendering algorithm.
+
+## License
+
+(copied from s-macke/VoxelSpace)
+The software part of the repository is under the MIT license. Please read the license file for more information. Please keep in mind, that the Voxel Space technology might be still patented in some countries. The color and height maps are reverse engineered from the game Comanche and are therefore excluded from the license.
