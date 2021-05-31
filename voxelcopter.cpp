@@ -339,7 +339,7 @@ void physicsThread() {
             }
         }
 
-        position += speed / 10.0f;
+        position += speed / 1.0f;
 
         this_thread::sleep_for(1ms);
     }
