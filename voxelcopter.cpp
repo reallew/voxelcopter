@@ -25,21 +25,23 @@ thread inputHandler;
 thread physics;
 
 namespace camera {
-    constexpr float straightView { window::height / 2.0 };
+    constexpr float straightView { window::height / 2.0f };
     constexpr float minHorizon { -straightView };
-    constexpr float maxHorizon { 3.0 * straightView};
-    float angle = 100;              // Rotation left and right.
-    float horizon = straightView;   // Rotation up and down.
-    float distance = 4000;          // How far can you see?
-    constexpr float deltaFactor { 0.000001 };
-    constexpr float heightScaleFactor { 50000 };
+    constexpr float maxHorizon { 3.0f * straightView};
+    float angle { 101.417f };         // Rotation left and right.
+    float horizon { straightView - 30.0f};   // Rotation up and down.
+    float distance { 4000.0f };       // How far can you see?
+    constexpr float deltaFactor { 0.000001f };
+    constexpr float heightScaleFactor { 50000.0f };
 }
 
+constexpr __v4sf gravity { 0, 0, -0.00001 };
+
 namespace engine {
-    constexpr float maxPower { 0.0000105 };
-    constexpr float minPower { maxPower * 0.7f };
-    constexpr float deltaPower { 0.0000000002 };
-    float power { 0.00001 };
+    constexpr float maxPower { 0.0000102 };
+    constexpr float minPower { maxPower * 0.9f };
+    constexpr float deltaPower { 0.0000000001 };
+    float power { -gravity[2] + deltaPower * 5.0f};
 }
 
 namespace audio {
@@ -54,7 +56,7 @@ namespace geo {
     float invZ { 0 };
 }
 
-__v4sf position { 902.338, 51.66, 1.3 };
+__v4sf position { 1425.0f, -500.0f, 0.6f };
 __v4sf drawingPosition { position };
 __v4sf speed { 0 };
 
@@ -116,7 +118,7 @@ void initLandscape() {
     SDL_Surface* texture { IMG_Load(textureFileName) };
     SDL_Surface* heightmap { IMG_Load(heightmapFileName) };
 
-    float maxHeight { 0.0f };
+    float maxHeight { 0.01f };
     for (int h = 0; h < heightmap->h; ++h)
         for (int w = 0; w < heightmap->w; ++w)
             if (getSurfaceHeight(heightmap, w, h) > maxHeight)
@@ -312,17 +314,16 @@ void physicsThread() {
             sidePitch[1] -= cosf(camera::angle - M_PI_2) * engine::power;
         }
 
-        const float frontPitch { (float)M_PI * ((camera::horizon + camera::straightView * 9.0f) /
-                                                (camera::straightView * 20.0f)) };
+        const float frontPitch { (float)M_PI * (camera::horizon + camera::straightView * 9.0f) /
+            (camera::straightView * 20.0f) };
 
         const __v4sf rotorAcceleration {
-            -sinf(camera::angle) * engine::power * cosf(frontPitch) * 500.0f,
-            -cosf(camera::angle) * engine::power * cosf(frontPitch) * 500.0f,
+            -sinf(camera::angle) * engine::power * cosf(frontPitch) * 10.0f,
+            -cosf(camera::angle) * engine::power * cosf(frontPitch) * 10.0f,
             sinf(frontPitch) * engine::power
         };
 
         speed *= 1.0f - (speed * speed * 4.0f); // Air resistance
-        constexpr __v4sf gravity { 0, 0, -0.00001 };
         speed += rotorAcceleration + gravity + sidePitch;
 
         if (position[2] > 2.0f && speed[2] > 0.0f) // Height barrier
@@ -339,7 +340,7 @@ void physicsThread() {
             }
         }
 
-        position += speed / 1.0f;
+        position += speed;
 
         this_thread::sleep_for(1ms);
     }
