@@ -30,10 +30,14 @@ namespace camera {
     constexpr float maxHorizon { 3.0f * straightView};
     float angle { 101.417f };                // Rotation left and right.
     float horizon { straightView - 30.0f};   // Rotation up and down.
-    float flightstickRotation { 0.0f };      // Position of the pilot's flightstick rotational axis (range -1..1).
     float distance { 4000.0f };              // How far can you see?
     constexpr float deltaFactor { 0.000001f };
     constexpr float heightScaleFactor { 50000.0f };
+}
+
+namespace flightstick {
+    float rotation { 0.0f };
+    float upDown { 0.0f };
 }
 
 constexpr __v4sf gravity { 0, 0, -0.00001 };
@@ -262,7 +266,7 @@ void audioCallback(void* userdata, Uint8* audioBuffer, int audioBufferLen) {
             if (silencePlayed == silenceBetweenChops) {
                 chopPlayed = 0;
                 silencePlayed = silenceBetweenChops = 64 *
-                    (int)(1.0f + 3000.0f * (1.0f - engine::power / engine::maxPower));
+                    (int)(1.0f + 5000.0f * (1.0f - engine::power / engine::maxPower));
             }
         }
 
@@ -315,6 +319,11 @@ void physicsThread() {
             sidePitch[1] -= cosf(camera::angle - M_PI_2) * engine::power;
         }
 
+        camera::horizon += flightstick::upDown / 1.0f;
+        if (camera::horizon < camera::minHorizon)
+            camera::horizon = camera::minHorizon;
+        else if (camera::horizon > camera::maxHorizon)
+            camera::horizon = camera::maxHorizon;
         const float frontPitch { (float)M_PI * (camera::horizon + camera::straightView * 9.0f) /
             (camera::straightView * 20.0f) };
 
@@ -342,8 +351,7 @@ void physicsThread() {
         }
 
         position += speed;
-        camera::angle += camera::flightstickRotation / 500.0f;
-        camera::flightstickRotation *= 0.999999f; // Air resistance.
+        camera::angle += flightstick::rotation / 512.0f;
 
         this_thread::sleep_for(1ms);
     }
@@ -356,17 +364,16 @@ void inputHandlerThread() {
             if (event.type == SDL_QUIT)
                 runApp = false;
             else if (event.type == SDL_MOUSEMOTION) {
-                //camera::angle -= (float)event.motion.xrel / 300.0f;
-                camera::flightstickRotation -= (float)event.motion.xrel / 1000.0f;
-                if (camera::flightstickRotation < -1.0f)
-                    camera::flightstickRotation = -1.0f;
-                else if (camera::flightstickRotation > 1.0f)
-                    camera::flightstickRotation = 1.0f;
-                camera::horizon += event.motion.yrel;
-                if (camera::horizon < camera::minHorizon)
-                    camera::horizon = camera::minHorizon;
-                else if (camera::horizon > camera::maxHorizon)
-                    camera::horizon = camera::maxHorizon;
+                flightstick::rotation -= (float)event.motion.xrel / 1024.0f;
+                if (flightstick::rotation < -1.0f)
+                    flightstick::rotation = -1.0f;
+                else if (flightstick::rotation > 1.0f)
+                    flightstick::rotation = 1.0f;
+                flightstick::upDown += (float)event.motion.yrel / 1024.0f;
+                if (flightstick::upDown < -1.0f)
+                    flightstick::upDown = -1.0f;
+                else if (flightstick::upDown > 1.0f)
+                    flightstick::upDown = 1.0f;
             } else if (event.type == SDL_KEYDOWN)
                 keyStates[event.key.keysym.sym] = true;
             else if (event.type == SDL_KEYUP)
@@ -392,7 +399,7 @@ int main(int argc, char* argv[]) {
     atexit(cleanupAtExit);
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO);
-    sdlWindow = SDL_CreateWindow("TerrainSpace", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    sdlWindow = SDL_CreateWindow("voxelcopter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                  window::width, window::height, SDL_WINDOW_FULLSCREEN_DESKTOP);
     windowSurface = SDL_GetWindowSurface(sdlWindow);
     pixBuf = (Uint32*)windowSurface->pixels;
