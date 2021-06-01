@@ -33,9 +33,9 @@ namespace camera {
     constexpr float straightView { window::height / 2.0f };
     constexpr float minHorizon { -straightView };
     constexpr float maxHorizon { 3.0f * straightView};
-    float angle { 101.417f };                // Rotation left and right.
-    float horizon { straightView - 30.0f};   // Rotation up and down.
-    float distance { 4000.0f };              // How far can you see?
+    float angle { 101.417f };                 // Rotation left and right.
+    float horizon { straightView - 30.0f };   // Rotation up and down.
+    float distance { 4000.0f };               // How far can you see?
     constexpr float deltaFactor { 0.000001f };
     constexpr float heightScaleFactor { 50000.0f };
 }
@@ -45,7 +45,7 @@ namespace flightstick {
     float upDown { 0.0f };
 }
 
-constexpr __v4sf gravity { 0, 0, -0.00001 };
+constexpr __v4sf gravity { 0.0f, 0.0f, -0.00001f };
 
 namespace engine {
     constexpr float maxPower { 0.0000102 };
@@ -61,9 +61,9 @@ namespace audio {
 
 namespace geo {
     int maxH { 0 };
-    float pl[2] { 0 };
-    float d[2] { 0 };
-    float invZ { 0 };
+    float pl[2] { 0.0f };
+    float d[2] { 0.0f };
+    float invZ { 0.0f };
 }
 
 __v4sf position { 1425.0f, -500.0f, 0.6f };
@@ -324,7 +324,7 @@ void physicsThread() {
             sidePitch[1] -= cosf(camera::angle - M_PI_2) * engine::power;
         }
 
-        camera::horizon += flightstick::upDown / 1.0f;
+        camera::horizon += flightstick::upDown;
         if (camera::horizon < camera::minHorizon)
             camera::horizon = camera::minHorizon;
         else if (camera::horizon > camera::maxHorizon)
