@@ -1,3 +1,8 @@
+// *** voxelcopter ***                                                                                   -----|-----
+// (c) 2021 Lew Palm, lp@lew-palm.de                                                                  *>=====[_]L)
+// This code is licensed under MIT license (see LICENSE for details).                                       -'-`-
+// compile: g++ -O3 -std=c++20 -march=native voxelcopter.cpp -lSDL2 -lSDL2_image -pthread -o voxelcopter
+
 #include <chrono>
 #include <vector>
 #include <map>
