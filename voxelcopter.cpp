@@ -28,9 +28,10 @@ namespace camera {
     constexpr float straightView { window::height / 2.0f };
     constexpr float minHorizon { -straightView };
     constexpr float maxHorizon { 3.0f * straightView};
-    float angle { 101.417f };         // Rotation left and right.
+    float angle { 101.417f };                // Rotation left and right.
     float horizon { straightView - 30.0f};   // Rotation up and down.
-    float distance { 4000.0f };       // How far can you see?
+    float flightstickRotation { 0.0f };      // Position of the pilot's flightstick rotational axis (range -1..1).
+    float distance { 4000.0f };              // How far can you see?
     constexpr float deltaFactor { 0.000001f };
     constexpr float heightScaleFactor { 50000.0f };
 }
@@ -341,6 +342,8 @@ void physicsThread() {
         }
 
         position += speed;
+        camera::angle += camera::flightstickRotation / 500.0f;
+        camera::flightstickRotation *= 0.999999f; // Air resistance.
 
         this_thread::sleep_for(1ms);
     }
@@ -353,7 +356,12 @@ void inputHandlerThread() {
             if (event.type == SDL_QUIT)
                 runApp = false;
             else if (event.type == SDL_MOUSEMOTION) {
-                camera::angle -= (float)event.motion.xrel / 300.0f;
+                //camera::angle -= (float)event.motion.xrel / 300.0f;
+                camera::flightstickRotation -= (float)event.motion.xrel / 1000.0f;
+                if (camera::flightstickRotation < -1.0f)
+                    camera::flightstickRotation = -1.0f;
+                else if (camera::flightstickRotation > 1.0f)
+                    camera::flightstickRotation = 1.0f;
                 camera::horizon += event.motion.yrel;
                 if (camera::horizon < camera::minHorizon)
                     camera::horizon = camera::minHorizon;
