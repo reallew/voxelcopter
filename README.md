@@ -4,7 +4,7 @@ Multi-threaded and multi-platform helicopter simulator with CPU-only rendering (
 This project was heavily inspired by https://github.com/s-macke/VoxelSpace. Read that page if you want to learn something about the ingenious simple rendering algorithm.
 
 ## Building
-The program is written in C++20 (needed for the type atomic<int>). You need GCC 10 (or later) to compile it. It is also possible to compile it with clang, but this results in less FPS.
+The program is written in C++20 (needed for the type atomic int). You need GCC 10 (or later) to compile it. It is also possible to compile it with clang, but this results in less FPS.
   
 You need two libraries: libsdl2 and libsdl2-image. Maybe the packages are called libsdl2-dev und libsdl2-image-dev in your distribution.
 
