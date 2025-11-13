@@ -1,5 +1,8 @@
 # voxelcopter
 
+This is just a copy of https://codeberg.org/Lew_Palm/voxelcopter
+
+https://www.youtube.com/watch?v=7Cj6q2HaGYw
 ![voxelcopter screenshot](http://lew-palm.de/voxelcopter.jpg)
 
 Multi-threaded and multi-platform helicopter simulator with CPU-only rendering (raycasting) using terrain from the 1992's game Comache.
